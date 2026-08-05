@@ -2,9 +2,6 @@
 
 add_newline = false
 
-# 🔥 THE TRULY BULLETPROOF DYNAMIC FORMAT:
-# We explicitly list the tools. If none of these are active,
-# the group completely vanishes, keeping you on a single line.
 format = """
 $username$directory\
 ($python$git_branch$git_status$nodejs$rust$golang$docker_context$aws\n)\
