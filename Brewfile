@@ -1,5 +1,4 @@
 tap "kismetwireless/kismet", trusted: true
-tap "sdkman/tap", trusted: true
 tap "wpscanteam/tap", trusted: true
 # In-depth attack surface mapping and asset discovery
 brew "amass"
@@ -35,6 +34,8 @@ brew "fzf"
 brew "gh"
 # Distributed revision control system
 brew "git"
+# Task is a task runner/build tool that aims to be simpler and easier to use
+brew "go-task"
 # Directory/file & DNS busting tool written in Go
 brew "gobuster"
 # Development kit for the Java programming language
@@ -49,6 +50,8 @@ brew "herdr"
 brew "httpx"
 # Network logon cracker which supports many services
 brew "hydra"
+# Manage your Java environment
+brew "jenv"
 # Enhanced version of john, a UNIX password cracker
 brew "john-jumbo"
 # Simple terminal UI for git commands
@@ -115,8 +118,6 @@ brew "zsh-history-substring-search"
 brew "zsh-you-should-use"
 # Kismet Wi-Fi and Wireless Sniffer
 brew "kismetwireless/kismet/kismet"
-# SDKMAN! the Software Development Kit Manager
-brew "sdkman/tap/sdkman-cli"
 # Black box WordPress vulnerability scanner
 brew "wpscanteam/tap/wpscan"
 # Image editing and design software

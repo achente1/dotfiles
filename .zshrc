@@ -1,32 +1,58 @@
-# ── PATH & Environment ────────────────────────────────────────
+# ── PATH & Core Environment ───────────────────────────────────
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
-export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/opt/metasploit-framework/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 
 export LANG=en_US.UTF-8
+export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ENV_HINTS=1
 export OLLAMA_API_BASE="http://127.0.0.1:11434"
 
-# Prevent Zsh from re-scanning PATH on every directory/subshell change
+# Prevent Zsh from re-scanning PATH on every directory change
 unsetopt auto_name_dirs
 
-# ── Global History Setup ──────────────────────────────────────
+# ── History Settings ──────────────────────────────────────────
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=50000
 SAVEHIST=50000
 
-# ── Advanced Zsh History Settings ────────────────────────────
-setopt EXTENDED_HISTORY       # Save exact timestamps for commands
-setopt SHARE_HISTORY          # Share history across all open tabs instantly
-setopt APPEND_HISTORY         # Append history entries instead of replacing them
-setopt HIST_EXPIRE_DUPS_FIRST # Delete oldest duplicate entries first when full
-setopt HIST_IGNORE_DUPS       # Do not record a command if it was the exact previous one
-setopt HIST_REDUCE_BLANKS     # Clean up unnecessary whitespace from saved entries
+setopt EXTENDED_HISTORY       # Save exact timestamps
+setopt SHARE_HISTORY          # Share history across tabs
+setopt APPEND_HISTORY         # Append to history file
+setopt HIST_EXPIRE_DUPS_FIRST # Delete duplicates first when full
+setopt HIST_IGNORE_DUPS       # Ignore immediate duplicates
+setopt HIST_REDUCE_BLANKS     # Clean up whitespace
 
 # ── Antidote Plugin Manager ───────────────────────────────────
-source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
-antidote load
+if [[ -f /opt/homebrew/opt/antidote/share/antidote/antidote.zsh ]]; then
+    source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
+    antidote load
+fi
+
+# ── History Substring Search Keybindings (Loaded Post-Plugins) ─
+if widget-available history-substring-search-up 2>/dev/null || [ -n "$FUNCTIONS" ]; then
+    bindkey '^[[A' history-substring-search-up 2>/dev/null
+    bindkey '^[[B' history-substring-search-down 2>/dev/null
+fi
+
+# ── Smart Text Editing Keybindings ───────────────────────────
+bindkey '^B' backward-word         # Ctrl + B
+bindkey '^F' forward-word          # Ctrl + F
+bindkey '^A' beginning-of-line     # Ctrl + A
+bindkey '^E' end-of-line           # Ctrl + E
+bindkey '^?' backward-delete-char  # Backspace
+
+# ── Smart Sudo (Double-tap Esc) ───────────────────────────────
+sudo-command-line() {
+    [[ -z $BUFFER ]] && zle up-history
+    if [[ $BUFFER != sudo\ * ]]; then
+        BUFFER="sudo $BUFFER"
+        CURSOR=$(( CURSOR + 5 ))
+    fi
+}
+zle -N sudo-command-line
+bindkey "\e\e" sudo-command-line
 
 # ── Editor ────────────────────────────────────────────────────
 if command -v nvim &>/dev/null; then
@@ -40,38 +66,13 @@ fi
 # ── Force Autosuggestion Styling ─────────────────────────────
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=8"
 
-# ── History Substring Search Keybindings ─────────────────────
-bindkey '^[[A' history-substring-search-up
-bindkey '^[[B' history-substring-search-down
-
-# ── Smart Text Editing Keybindings ───────────────────────────
-bindkey '^B' backward-word         # Ctrl + B: Jump back one word
-bindkey '^F' forward-word          # Ctrl + F: Jump forward one word
-bindkey '^A' beginning-of-line     # Ctrl + A: Jump to start of line
-bindkey '^E' end-of-line           # Ctrl + E: Jump to end of line
-bindkey '^?' backward-delete-char  # Backspace deletes character
-
-# ── Smart Sudo (Double-tap Esc to prepend sudo) ───────────────
-sudo-command-line() {
-    [[ -z $BUFFER ]] && zle up-history
-    if [[ $BUFFER != sudo\ * ]]; then
-        BUFFER="sudo $BUFFER"
-        CURSOR=$(( CURSOR + 5 ))
-    fi
-}
-zle -N sudo-command-line
-bindkey "\e\e" sudo-command-line
-
-# ── fzf (fuzzy finder) ────────────────────────────────────────
-source <(fzf --zsh) 2>/dev/null
-bindkey -r '\ec'
-
-autoload -U fzf-file-widget fzf-cd-widget
-zle -N fzf-file-widget
-zle -N fzf-cd-widget
-
-export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+# ── fzf (Fuzzy Finder) ────────────────────────────────────────
+if command -v fzf &>/dev/null; then
+    source <(fzf --zsh) 2>/dev/null
+    bindkey -r '\ec'
+    export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+fi
 
 # ── Aliases — Listing ─────────────────────────────────────────
 alias ls='eza --icons=always'
@@ -96,7 +97,7 @@ alias binf='brew info'
 alias bson='brew services start'
 alias bsoff='brew services stop'
 
-# ── Aliases — Git ─────────────────────────────────────────────
+# ── Aliases — Git & Dotfiles ──────────────────────────────────
 alias ga="git add ."
 alias gs="git status -s"
 alias gc='git commit -m'
@@ -110,19 +111,15 @@ alias gco='git checkout'
 alias gb='git branch'
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
-# ── Aliases — Dev & Editors ───────────────────────────────────
+# ── Aliases — Dev & System ────────────────────────────────────
 alias py='python3'
 alias v='nvim'
 alias vim='nvim'
-
-# ── Aliases — Tmux & Herder ───────────────────────────────────
 alias t='tmux'
 alias ta='tmux attach -t'
 alias tls='tmux list-sessions'
 alias tk='tmux kill-session -t'
 alias h='herder'
-
-# ── Aliases — System ──────────────────────────────────────────
 alias reload='exec zsh'
 alias edit='zed ~/.zshrc'
 alias awake='caffeinate -d'
@@ -130,26 +127,27 @@ alias c='clear'
 alias path='echo $PATH | tr ":" "\n"'
 alias update='bu && bup && clean'
 alias upc='update && clean'
-
-# ── Aliases — Tools ───────────────────────────────────────────
 alias usage='ncdu --color dark -rr -x'
 alias top='bottom'
 
-# ── Tool Integrations ─────────────────────────────────────────
-eval "$(zoxide init zsh)"
+# ── Bitwarden Shortcuts ───────────────────────────────────────
+alias bwunlock='export BW_SESSION="$(bw unlock --raw)"'
+alias bwget='bw get item'
+alias bwpass='bw get password'
 
-# ── Fast Node Manager (fnm) ─────────────────────────────────── 
+# ── Tool Integrations ─────────────────────────────────────────
+command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
+
+# Fast Node Manager (fnm)
 if command -v fnm &>/dev/null; then
   eval "$(fnm env --use-on-cd)"
 fi
 
-# ── SDKMAN! (Java Manager) ────────────────────────────────────
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+# ── Java Version Manager (jenv) ───────────────────────────────
+export PATH="$HOME/.jenv/bin:$PATH"
+if command -v jenv &>/dev/null; then
+  eval "$(jenv init -)"
+fi
 
-# ── Starship Prompt (Must be initialized last) ───────────────
-eval "$(starship init zsh)"
-
-# ── Export ───────────────────────────────────────────────────
-export HOMEBREW_NO_AUTOUPDATE=1
-
+# ─── Starship Prompt ───────────────────────────────────────────
+command -v starship &>/dev/null && eval "$(starship init zsh)"
