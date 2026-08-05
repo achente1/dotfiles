@@ -36,12 +36,9 @@ if widget-available history-substring-search-up 2>/dev/null || [ -n "$FUNCTIONS"
     bindkey '^[[B' history-substring-search-down 2>/dev/null
 fi
 
-# ── Smart Text Editing Keybindings ───────────────────────────
-bindkey '^B' backward-word         # Ctrl + B
-bindkey '^F' forward-word          # Ctrl + F
-bindkey '^A' beginning-of-line     # Ctrl + A
-bindkey '^E' end-of-line           # Ctrl + E
-bindkey '^?' backward-delete-char  # Backspace
+# ── Zsh Vi Mode Configuration ────────────────────────────────
+ZVM_CURSOR_STYLE_ENABLED=true
+ZVM_KEYTIMEOUT=0.05  # Makes Esc key response instantaneous
 
 # ── Smart Sudo (Double-tap Esc) ───────────────────────────────
 sudo-command-line() {
