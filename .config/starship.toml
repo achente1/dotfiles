@@ -1,0 +1,52 @@
+# ~/.config/starship.toml
+
+add_newline = false
+
+# 🔥 THE TRULY BULLETPROOF DYNAMIC FORMAT:
+# We explicitly list the tools. If none of these are active,
+# the group completely vanishes, keeping you on a single line.
+format = """
+$username$directory\
+($python$git_branch$git_status$nodejs$rust$golang$docker_context$aws\n)\
+$character"""
+
+right_format = """$status"""
+
+[username]
+style_root = "bold red"
+format = "[$user]($style) "
+show_always = false
+
+[character]
+success_symbol = "[❯](bold green) "
+error_symbol = "[❯](bold red) "
+
+[directory]
+style = "bold cyan"
+truncate_to_repo = true
+truncation_length = 3
+
+[python]
+symbol = "🐍 "
+pyenv_version_name = true
+format = "via [$symbol$version]($style) [($virtualenv)](italic bold green) "
+style = "bold yellow"
+detect_extensions = []
+detect_files = []
+detect_folders = []
+
+[git_branch]
+symbol = " "
+style = "bold magenta"
+format = "on [$symbol$branch]($style) "
+
+[git_status]
+style = "bold red"
+format = "[$all_status$ahead_behind]($style)"
+
+[status]
+disabled = false
+symbol = "✘ "
+style = "bold red"
+format = "[$symbol$status]($style)"
+pipestatus = true
