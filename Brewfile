@@ -79,6 +79,8 @@ brew "python-tk@3.14"
 brew "qpdf"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
+# Powerful, clean, object-oriented scripting language
+brew "ruby"
 # Modern Day Portscanner
 brew "rustscan"
 # Rust toolchain installer
