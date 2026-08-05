@@ -25,10 +25,27 @@ setopt HIST_IGNORE_DUPS       # Ignore immediate duplicates
 setopt HIST_REDUCE_BLANKS     # Clean up whitespace
 
 # ── Antidote Plugin Manager ───────────────────────────────────
+# Static Antidote plugin loading
+zdir="${XDG_CACHE_HOME:-$HOME/.cache}/antidote"
+zpath="$zdir/plugins.zsh"
+
+# Ensure cache directory exists
+mkdir -p "$zdir"
+
+# Load antidote function from Homebrew or fallback path
 if [[ -f /opt/homebrew/opt/antidote/share/antidote/antidote.zsh ]]; then
-    source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
-    antidote load
+  source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
+elif command -v brew >/dev/null 2>&1; then
+  source "$(brew --prefix)/opt/antidote/share/antidote/antidote.zsh"
 fi
+
+# Generate static bundle if plugins file is newer than static script
+if [[ ! -f "$zpath" || ~/.zsh_plugins.txt -nt "$zpath" ]]; then
+  antidote bundle < ~/.zsh_plugins.txt >| "$zpath"
+fi
+
+# Source the compiled static bundle
+[[ -f "$zpath" ]] && source "$zpath"
 
 # ── History Substring Search Keybindings (Loaded Post-Plugins) ─
 if widget-available history-substring-search-up 2>/dev/null || [ -n "$FUNCTIONS" ]; then
@@ -142,9 +159,16 @@ fi
 
 # ── Java Version Manager (jenv) ───────────────────────────────
 export PATH="$HOME/.jenv/bin:$PATH"
-if command -v jenv &>/dev/null; then
-  eval "$(jenv init -)"
-fi
+jenv() {
+  unset -f jenv java javac mvn gradle
+  eval "$(command jenv init -)"
+  jenv "$@"
+}
+java() { jenv; java "$@"; }
+javac() { jenv; javac "$@"; }
+mvn() { jenv; mvn "$@"; }
+gradle() { jenv; gradle "$@"; }
 
 # ─── Starship Prompt ───────────────────────────────────────────
 command -v starship &>/dev/null && eval "$(starship init zsh)"
+
